@@ -1,0 +1,69 @@
+type Block{
+  id: ID!
+  Height: Int!
+  proposer: String!
+  moniker: String!
+  blockHash: String!
+  parentHash: String!
+  NumPrecommits: Int!
+  NumTxs: Int!
+  TotalTxs: Int!
+  timestamp: Timestamp!
+}
+type PreCommit{
+  id: ID!
+  Height: Int!
+  Round: Int!
+  validatorAddress: String!
+  VotingPower: Int!
+  ProposerPriority: Int!
+  timestamp: Timestamp!
+}
+type Transaction{
+  id: ID!
+  Height: Int!
+  txHash: String!
+  Code: Int!
+  messages: String!
+  signatures: String!
+  memo: String!
+  GasWanted: Int!
+  GasUsed: Int!
+  Timestamp: Timestamp!
+}
+type Validator{
+  id: ID!
+  operatorAddress: String!
+  consensusAddress: String!
+  consensusPubKey: String!
+
+  moniker: String!
+  identity: String!
+  website: String!
+  securityContact: String!
+  details: String!
+
+  Jailed: Boolean!
+  Status: Int!
+  tokens: String!
+  delegatorShares: String!
+
+  unbondingHeight: String!
+  unbondingTime: String!
+
+  rate: String!
+  maxRate: String!
+  maxChangeRate: String!
+  updateTime: String!
+
+  timestamp: Timestamp!
+  minSelfDelegation: String!
+
+}
+
+type Query {
+  validators: [Validator!]!
+}
+
+scalar Timestamp
+
