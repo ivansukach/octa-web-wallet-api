@@ -795,6 +795,15 @@ func (c *Conn) advanceFrame() (int, error) {
 
 	// 2. Read and parse first two bytes of frame header.
 
+	////EDIT
+	//c.br = bufio.NewReaderSize(c.conn, defaultReadBufferSize)
+	//c.br = bufio.NewReader([]byte("c.conn, defaultReadBufferSize"))
+	//c.br.Read([]byte("GET /graphql HTTP/1.1\nHost: localhost:4000\nConnection: Upgrade\nPragma: no-cache\nCache-Control: no-cache\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36\nUpgrade: websocket\nOrigin: chrome-extension://cbcbkhdmedgianpaifchdaddpnmgnknn\nSec-Websocket-Version: 13\nAccept-Encoding: gzip, deflate, br\nAccept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7\nSec-Websocket-Key: ZK81HfS2dv0ZbEl+2zfhSA==\nSec-Websocket-Extensions: permessage-deflate; client_max_window_bits\nSec-Websocket-Protocol: Sec-Websocket-Protocol, graphql-ws"))
+	////EDIT
+	//myBr := bufio.NewReader([]byte("Hello world"))
+	//pTemp, err := c.br.Peek(2)
+	//fmt.Printf("pTemp=%v err=%s", pTemp, err)
+
 	p, err := c.read(2)
 	if err != nil {
 		return noFrame, err

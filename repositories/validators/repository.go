@@ -16,7 +16,7 @@ func New(db *sqlx.DB) Repository {
 }
 
 func (r *validatorRepository) Listing(ctx context.Context) ([]*model.Validator, error) {
-	rows, err := r.db.Queryx("SELECT * FROM validators")
+	rows, err := r.db.Queryx("SELECT * FROM validator")
 	if err != nil {
 		return nil, err
 	}
