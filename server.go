@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -10,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
 	"github.com/ivansukach/octa-web-wallet-api/graph"
 	"github.com/ivansukach/octa-web-wallet-api/graph/generated"
@@ -25,12 +27,44 @@ const defaultPort = "4000"
 
 func CustomCORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:9080")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 		w.Header().Set("Access-Control-Allow-Headers", "fingerprint, authorization, development, content-type")
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		//upgrader.CheckOrigin = func(r *http.Request) bool { return true}
 		next.ServeHTTP(w, r)
 	})
+}
+
+type Cache struct {
+	client redis.UniversalClient
+	ttl    time.Duration
+}
+
+const apqPrefix = "apq:"
+
+func NewCache(redisAddress string, ttl time.Duration) (*Cache, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr: redisAddress,
+	})
+
+	err := client.Ping().Err()
+	if err != nil {
+		return nil, fmt.Errorf("could not create cache: %w", err)
+	}
+
+	return &Cache{client: client, ttl: ttl}, nil
+}
+
+func (c *Cache) Add(ctx context.Context, key string, value interface{}) {
+	c.client.Set(apqPrefix+key, value, c.ttl)
+}
+
+func (c *Cache) Get(ctx context.Context, key string) (interface{}, bool) {
+	s, err := c.client.Get(apqPrefix + key).Result()
+	if err != nil {
+		return struct{}{}, false
+	}
+	return s, true
 }
 
 var upgrader = websocket.Upgrader{
@@ -98,7 +132,6 @@ func NewServer(es graphql.ExecutableSchema) *handler.Server {
 	srv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})
-
 	return srv
 }
 
